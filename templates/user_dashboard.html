@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>User Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+
+        body{
+            background:#f4f6f9;
+        }
+
+        .sidebar{
+            height:100vh;
+            background:#0d6efd;
+        }
+
+        .sidebar a{
+            color:white;
+            text-decoration:none;
+            display:block;
+            padding:14px;
+            border-radius:8px;
+            margin-bottom:8px;
+            transition:.3s;
+        }
+
+        .sidebar a:hover{
+            background:white;
+            color:#0d6efd;
+        }
+
+        .table-card{
+            border-radius:12px;
+            overflow:hidden;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container-fluid">
+
+<div class="row">
+
+<!-- Sidebar -->
+
+<div class="col-md-2 sidebar p-4">
+
+<h4 class="text-white text-center mb-4">
+
+🥾 Trekker
+
+</h4>
+
+<a href="/user">
+
+🏠 Dashboard
+
+</a>
+
+<a href="/view_treks">
+
+🏔 Browse Treks
+
+</a>
+
+<a href="/my_bookings">
+
+📖 My Bookings
+
+</a>
+
+<a href="/profile">
+
+👤 My Profile
+
+</a>
+
+<a href="/logout">
+
+🚪 Logout
+
+</a>
+
+</div>
+
+<!-- Main Content -->
+
+<div class="col-md-10">
+
+<nav class="navbar bg-white shadow-sm mt-2 rounded">
+
+<div class="container-fluid">
+
+<h4>
+
+Trekking Management System
+
+</h4>
+
+<h5>
+
+👤 {{ session["user_name"] }}
+
+</h5>
+
+</div>
+
+</nav>
+
+<div class="mt-4">
+
+<h2>
+
+Welcome {{ session["user_name"] }}
+
+</h2>
+
+<p class="text-muted">
+
+Browse available treks and manage your bookings.
+
+</p>
+
+</div>
+
+<!-- Search Section -->
+
+<div class="card shadow mt-4">
+
+<div class="card-header bg-primary text-white">
+
+Search & Filter Treks
+
+</div>
+
+<div class="card-body">
+
+<form method="GET" action="/view_treks">
+
+<div class="row">
+
+<div class="col-md-4">
+
+<input
+type="text"
+name="search"
+class="form-control"
+placeholder="Search Trek Name">
+
+</div>
+
+<div class="col-md-3">
+
+<select
+name="Difficulty"
+class="form-select">
+
+<option value="">Difficulty</option>
+
+<option>Easy</option>
+
+<option>Moderate</option>
+
+<option>Hard</option>
+
+</select>
+
+</div>
+
+<div class="col-md-3">
+
+<input
+type="text"
+name="location"
+class="form-control"
+placeholder="Location">
+
+</div>
+
+<div class="col-md-2">
+
+<button
+class="btn btn-primary w-100">
+
+Search
+
+</button>
+
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+<!-- Available Treks -->
+
+<div class="card shadow table-card mt-4">
+
+<div class="card-header bg-success text-white">
+
+Available Treks
+
+</div>
+
+<div class="card-body">
+
+<table class="table table-hover table-bordered">
+
+<thead class="table-light">
+
+<tr>
+
+<th>Name</th>
+
+<th>Location</th>
+
+<th>Difficulty</th>
+
+<th>Start Date</th>
+
+<th>End Date</th>
+
+<th>Slots</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for trek in treks %}
+
+<tr>
+
+    <td>{{ trek.name }}</td>
+
+    <td>{{ trek.location }}</td>
+
+    <td>
+
+        {% if trek.difficulty == "Easy" %}
+
+        <span class="badge bg-success">
+
+            Easy
+
+        </span>
+
+        {% elif trek.difficulty == "Moderate" %}
+
+        <span class="badge bg-warning text-dark">
+
+            Moderate
+
+        </span>
+
+        {% else %}
+
+        <span class="badge bg-danger">
+
+            Hard
+
+        </span>
+
+        {% endif %}
+
+    </td>
+
+    <td>
+
+        {{ trek.start_date }}
+
+    </td>
+    
+    <td>
+
+        {{ trek.end_date }}
+
+    </td>
+
+    <td>
+
+        {{ trek.slots }}
+
+    </td>
+
+    
+
+    <td>
+
+        {% if trek.status == "Open" %}
+
+        <span class="badge bg-success">
+
+            Open
+
+        </span>
+
+        {% elif trek.status == "Closed" %}
+
+        <span class="badge bg-danger">
+
+            Closed
+
+        </span>
+
+        {% else %}
+
+        <span class="badge bg-secondary">
+
+            {{ trek.status }}
+
+        </span>
+
+        {% endif %}
+
+    </td>
+
+    <td>
+
+        {% if trek.status == "Open" and trek.slots > 0 %}
+
+        <a href="/book_trek/{{ trek.id }}"
+           class="btn btn-primary btn-sm">
+
+            Book Trek
+
+        </a>
+
+        {% else %}
+
+        <button class="btn btn-secondary btn-sm" disabled>
+
+            Not Available
+
+        </button>
+
+        {% endif %}
+
+    </td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- My Bookings -->
+
+<div class="card shadow table-card mt-4">
+
+<div class="card-header bg-warning">
+
+<h5 class="mb-0">
+
+📖 My Bookings
+
+</h5>
+
+</div>
+
+<div class="card-body">
+
+<table class="table table-bordered table-hover">
+
+<thead class="table-light">
+
+<tr>
+
+<th>Booking ID</th>
+
+<th>Trek</th>
+
+<th>Booking Date</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for booking in bookings %} 
+
+<tr>
+
+    <td>{{ booking.id }}</td>
+
+    <td>{{ booking.trek.name }}</td>
+
+    <td>{{ booking.booking_date }}</td>
+
+    <td>
+
+        {% if booking.status == "Booked" %}
+
+        <span class="badge bg-success">
+
+            Booked
+
+        </span>
+
+        {% elif booking.status == "Cancelled" %}
+
+        <span class="badge bg-danger">
+
+            Cancelled
+
+        </span>
+
+        {% else %}
+
+        <span class="badge bg-secondary">
+
+            {{ booking.status }}
+
+        </span>
+
+        {% endif %}
+
+    </td>
+
+    <td>
+
+        {% if booking.status == "Booked" %}
+
+        <a href="/cancel_booking/{{ booking.id }}"
+           class="btn btn-danger btn-sm">
+
+            Cancel
+
+        </a>
+
+        {% else %}
+
+        <button class="btn btn-secondary btn-sm" disabled>
+
+            Cancelled
+
+        </button>
+
+        {% endif %}
+
+    </td>
+
+</tr>
+
+{% endfor %}
+
+{% if bookings|length == 0 %}
+
+<tr>
+
+    <td colspan="5" class="text-center text-muted">
+
+        No bookings found.
+
+    </td>
+
+</tr>
+
+{% endif %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
